@@ -27,10 +27,10 @@ export function generateWorldlineToken({
   merchantId,
   txnId,
   totalAmount,
-  consumerMobileNo = "",
-  consumerEmailId = "",
+  consumerMobileNo,
+  consumerEmailId,
   salt,
-  algorithm = "sha256",
+  algorithm,
 }) {
   if (!salt) {
     throw new Error("Worldline SALT missing");
@@ -39,22 +39,23 @@ export function generateWorldlineToken({
   const hashString = [
     merchantId,
     txnId,
-    totalAmount,
+    totalAmount, // "1.00"
     "", // accountNo
     "", // consumerId
     consumerMobileNo,
     consumerEmailId,
-    "", // debitStartDate
-    "", // debitEndDate
-    "", // maxAmount
-    "", // amountType
-    "", // frequency
-    "", // cardNumber
-    "", // expMonth
-    "", // expYear
-    "", // cvvCode
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "", // remaining optional fields
     salt,
   ].join("|");
+   console.log("WORLDLINE HASH STRING =>", hashString);
 
-  return crypto.createHash(algorithm).update(hashString, "utf8").digest("hex");
+   return crypto.createHash(algorithm).update(hashString, "utf8").digest("hex");
 }

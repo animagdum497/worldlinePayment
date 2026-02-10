@@ -13,9 +13,9 @@ router.post("/initiate", (req, res) => {
   try {
     const { amount, patientMobile, patientEmail } = req.body;
 
-    const amt = Number(amount);
+    const formattedAmount = Number(amount).toFixed(2);
 
-    if (isNaN(amt) || amt < 1 || amt > 10) {
+    if (Number(formattedAmount) < 1 || Number(formattedAmount) > 10) {
       return res.status(400).json({
         error: "Test amount must be between ₹1 and ₹10",
       });
@@ -26,22 +26,23 @@ router.post("/initiate", (req, res) => {
     const token = generateWorldlineToken({
       merchantId: process.env.WORLDLINE_MERCHANT_ID,
       txnId,
-      totalAmount: amount,
-      consumerMobileNo: patientMobile,
-      consumerEmailId: patientEmail,
+      totalAmount: formattedAmount,
+      consumerMobileNo: patientMobile || "",
+      consumerEmailId: patientEmail || "",
       salt: process.env.WORLDLINE_SALT,
-      algorithm: process.env.HASH_ALGORITHM,
+      algorithm: "sha512", // FORCE SHA512
     });
 
     res.json({
       txnId,
       token,
-      amount,
+      amount: formattedAmount,
     });
   } catch (err) {
-    console.error(err);
+    console.error("Worldline initiate error:", err);
     res.status(500).json({ error: "Payment initiation failed" });
   }
 });
+
 
 export default router;
